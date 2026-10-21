@@ -1,0 +1,17 @@
+{
+  "configs": [
+    {
+      "title": "对唱歌词（TTML / ELRC）— 下次加载歌词时生效",
+      "config": "config.json",
+      "preferences": [
+        {"type": "switch", "key": "enabled", "title": "启用插件", "summary": "解析 TTML 与带 v1/v2/bg 标记的增强 LRC；其他歌词仍由播放器自行处理", "default_value": true},
+        {"type": "list", "key": "source.order", "title": "歌词来源顺序", "summary": "同名 .ttml / .elrc 总是最先；此项决定内嵌歌词与同名 .lrc 谁先", "entries": ["内嵌优先，其次同名 .lrc", "同名 .lrc 优先，其次内嵌"], "entry_values": ["EMBEDDED_FIRST", "SIDECAR_FIRST"], "default_value": "EMBEDDED_FIRST"},
+        {"type": "list", "key": "bg.style", "title": "背景人声", "summary": "独立行：带逐字时间的单独歌词行（默认）；副行：括号形式显示在主歌词下方，SPW 不会在副行上推进逐字进度", "entries": ["作为独立歌词行", "作为副行（括号）", "不显示"], "entry_values": ["SEPARATE", "SUBLINE", "DROP"], "default_value": "SEPARATE"},
+        {"type": "switch", "key": "translation.enabled", "title": "显示翻译", "summary": "TTML x-translation / iTunesMetadata 翻译，以及 LRC 同时间戳翻译行", "default_value": true},
+        {"type": "switch", "key": "romanization.enabled", "title": "显示音译", "summary": "TTML x-roman / transliterations", "default_value": false},
+        {"type": "switch", "key": "elrc.normalize_all", "title": "接管所有逐字 LRC", "summary": "关闭时，没有 v1/v2/bg 标记的逐字 LRC 交给播放器原生解析", "default_value": false},
+        {"type": "switch", "key": "amll.bridge", "title": "联动 AMLL into SPW（真正左右对唱）", "summary": "若已安装并启用 AMLL into SPW（GaBoron/AMLL-into-SPW），自动把对唱歌词以 TTML 交给它做左右对唱；未安装时无影响", "default_value": true}
+      ]
+    }
+  ]
+}
