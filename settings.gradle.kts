@@ -17,6 +17,7 @@ pluginManagement {
 
 dependencyResolutionManagement {
     repositories {
+        google { content { includeGroupByRegex("androidx\\..*") } }
         mavenCentral()
         maven("https://jitpack.io") { content { includeGroupByRegex("com\\.github\\.Moriafly.*") } }
     }

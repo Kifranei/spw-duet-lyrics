@@ -12,6 +12,7 @@ internal data class Settings(
     val romanization: Boolean = false,
     val normalizeAllElrc: Boolean = false,
     val amllBridge: Boolean = true,
+    val perLineAlign: Boolean = true,
 ) {
     val splOptions get() = SplOptions(background, translations, romanization)
 
@@ -29,6 +30,7 @@ internal data class Settings(
                 romanization = bool("romanization.enabled", d.romanization),
                 normalizeAllElrc = bool("elrc.normalize_all", d.normalizeAllElrc),
                 amllBridge = bool("amll.bridge", d.amllBridge),
+                perLineAlign = bool("align.per_line", d.perLineAlign),
             )
         }
     }

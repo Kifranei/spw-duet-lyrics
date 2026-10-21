@@ -1,6 +1,7 @@
 package io.github.kifranei.duetlyrics.plugin
 
 import com.xuncorp.spw.workshop.api.PlaybackExtensionPoint
+import io.github.kifranei.duetlyrics.align.LineAlignHook
 import io.github.kifranei.duetlyrics.core.LyricsConverter
 import org.pf4j.Extension
 
@@ -14,11 +15,14 @@ class DuetLyricsExtension : PlaybackExtensionPoint {
     override fun onBeforeLoadLyrics(mediaItem: PlaybackExtensionPoint.MediaItem): String? {
         if (!DuetLyricsPlugin.active) return null
         val s = DuetLyricsPlugin.settings
-        if (!s.enabled) return null
+        if (!s.enabled) {
+            LineAlignHook.lyricsLoaded(null)
+            return null
+        }
         return try {
             process(mediaItem.path, mediaItem.id, s)
         } catch (t: Throwable) {
-            System.err.println("[DuetLyrics] failed for ${mediaItem.path}: $t")
+            PluginLog.write("failed for ${mediaItem.path}: $t")
             null
         }
     }
@@ -28,10 +32,13 @@ class DuetLyricsExtension : PlaybackExtensionPoint {
             val bridge = DuetLyricsPlugin.bridge
             val source = LyricsSourceReader(s.embeddedFirst).read(path)
             val conversion = LyricsConverter(s.splOptions, s.normalizeAllElrc).convert(source?.text)
+            LineAlignHook.lyricsLoaded(conversion?.takeIf { it.document.isDuet }?.layout)
             if (conversion == null) {
                 bridge?.cancelPending()
                 return null
             }
+            val aligned = conversion.layout.count { it.align != null }
+            if (aligned > 0) PluginLog.write("duet lyrics: ${conversion.layout.size} lines, $aligned aligned; hook ${LineAlignHook.status}")
             val ttml = conversion.ttml
             if (s.amllBridge && ttml != null && bridge != null) bridge.submit(id, path, ttml) else bridge?.cancelPending()
             return conversion.spl.ifBlank { null }

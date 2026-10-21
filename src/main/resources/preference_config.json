@@ -10,6 +10,7 @@
         {"type": "switch", "key": "translation.enabled", "title": "显示翻译", "summary": "TTML x-translation / iTunesMetadata 翻译，以及 LRC 同时间戳翻译行", "default_value": true},
         {"type": "switch", "key": "romanization.enabled", "title": "显示音译", "summary": "TTML x-roman / transliterations", "default_value": false},
         {"type": "switch", "key": "elrc.normalize_all", "title": "接管所有逐字 LRC", "summary": "关闭时，没有 v1/v2/bg 标记的逐字 LRC 交给播放器原生解析", "default_value": false},
+        {"type": "switch", "key": "align.per_line", "title": "对唱逐行对齐（SPW 自带歌词界面）", "summary": "v1 行靠左、v2 行靠右，背景人声跟随所属主行；其余行沿用“歌词对齐”设置。需授予“类转换”权限，重启 SPW 后生效", "default_value": true},
         {"type": "switch", "key": "amll.bridge", "title": "联动 AMLL into SPW（真正左右对唱）", "summary": "若已安装并启用 AMLL into SPW（GaBoron/AMLL-into-SPW），自动把对唱歌词以 TTML 交给它做左右对唱；未安装时无影响", "default_value": true}
       ]
     }

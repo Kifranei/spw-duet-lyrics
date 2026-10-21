@@ -64,6 +64,18 @@ data class LyricsDocument(
         return Side.RIGHT
     }
 
+    /**
+     * Per-line alignment for SPW's own lyric view: primary voice left, other persons right,
+     * group agents (e.g. `v1000`) and lines without voice null (= keep SPW's global setting).
+     * Non-duet documents never get an alignment.
+     */
+    fun alignOf(voice: String?): Side? {
+        if (!isDuet || voice == null) return null
+        val agent = agents.firstOrNull { it.id.equals(voice, ignoreCase = true) }
+        if (agent != null && agent.type.equals("group", ignoreCase = true)) return null
+        return sideOf(voice)
+    }
+
     private fun primaryVoice(): String? {
         val used = voices
         used.firstOrNull { it.equals("v1", ignoreCase = true) }?.let { return it }

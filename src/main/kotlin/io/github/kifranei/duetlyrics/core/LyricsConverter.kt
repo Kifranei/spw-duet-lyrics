@@ -20,13 +20,16 @@ class LyricsConverter(
         /** Raw / generated TTML for an external duet renderer, when useful. */
         val ttml: String?,
         val rawWasTtml: Boolean,
+        /** Per-line start / text / alignment of [spl]. */
+        val layout: List<SplLine> = emptyList(),
     )
 
     fun convert(raw: String?): Conversion? {
         if (raw.isNullOrBlank()) return null
         if (TtmlParser.looksLikeTtml(raw)) {
             val doc = TtmlParser.parse(raw) ?: return null
-            return Conversion(doc, SplWriter.write(doc, spl), raw.trimStart('\uFEFF'), true)
+            val l = SplWriter.layout(doc, spl)
+            return Conversion(doc, l.spl, raw.trimStart('\uFEFF'), true, l.lines)
         }
         val r = ElrcParser.parse(raw)
         if (r.timedLineCount == 0) return null
@@ -34,6 +37,7 @@ class LyricsConverter(
         if (!needed) return null
         val doc = r.document
         val ttml = if (doc.isDuet || doc.hasBackground) TtmlWriter.write(doc) else null
-        return Conversion(doc, SplWriter.write(doc, spl), ttml, false)
+        val l = SplWriter.layout(doc, spl)
+        return Conversion(doc, l.spl, ttml, false, l.lines)
     }
 }

@@ -5,6 +5,7 @@ plugins {
     id("java-library")
     kotlin("jvm") version "2.4.20"
     kotlin("kapt") version "2.4.20"
+    kotlin("plugin.compose") version "2.4.20"
     id("com.xuncorp.spw.workshop") version "0.1.0-dev23"
 }
 
@@ -33,8 +34,19 @@ dependencies {
     kapt(libs.spw.workshop.api) { isTransitive = false }
     kapt(libs.pf4j) // PF4J @Extension annotation processor -> META-INF/extensions.idx
 
+    // Compose: provided by the host at runtime (Workshop API 0.1.0-dev23 pins Compose 1.12.1 /
+    // Kotlin 2.4.20). Only used for the per-line alignment hook.
+    compileOnly(libs.compose.foundation)
+    compileOnly(libs.compose.ui)
+    compileOnly(libs.compose.runtime)
+
     // Bundled into lib/ of the .spmod (embedded-tag lyrics reader, LGPL-2.1).
     implementation(libs.jaudiotagger)
+    // Bundled: bytecode reader that locates SPW's lyric line call site (BSD-3-Clause).
+    implementation(libs.asm)
+
+    testImplementation(libs.compose.desktop.linux)
+    testImplementation(libs.kotlinx.coroutines.swing)
 
     testImplementation(kotlin("stdlib"))
     testImplementation(kotlin("test"))
@@ -44,6 +56,8 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    // Optional: real SPW jars (not in the repo) for the hook-target verification test.
+    systemProperty("spw.jars", providers.gradleProperty("spwJars").orElse("/workspace/spw-1.19.0-jars").get())
     testLogging {
         events("passed", "failed", "skipped")
         showStandardStreams = false
@@ -57,11 +71,12 @@ spmod {
     PluginVersion = project.version.toString()
     PluginProvider = "Kifranei"
     PluginName = "Duet Lyrics (TTML / ELRC)"
-    PluginDescription = "解析 TTML 与增强 LRC（ELRC）歌词：逐字时间、v1/v2 对唱、背景人声与翻译；不再把 TTML 原始 XML 当作歌词显示"
+    PluginDescription = "解析 TTML 与增强 LRC（ELRC）歌词：逐字时间、v1/v2 对唱、背景人声与翻译；不再把 TTML 原始 XML 当作歌词显示；对唱歌词在 SPW 自带歌词界面中逐行对齐（v1 左 / v2 右，需类转换权限）"
     PluginOpenSourceUrl = "https://github.com/Kifranei/spw-duet-lyrics"
     PluginHasConfig = true
-    // No permission needed: lyrics are read from the song file / sidecar files only.
-    PluginPermissions = emptyList<PluginPermission>()
+    // CLASS_TRANSFORM: per-line alignment in SPW's own lyric view (optional; without it the
+    // plugin still converts lyrics and SPW's global "歌词对齐" applies to every line).
+    PluginPermissions = listOf(PluginPermission.CLASS_TRANSFORM)
 }
 
 tasks.named<Zip>("plugin") {
